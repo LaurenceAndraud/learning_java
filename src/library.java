@@ -5,42 +5,58 @@ import java.util.Optional;
 public class Library {
     private List<Book> books;
     private List<Author> authors;
+    private List<User> users; 
 
     public Library() {
         this.books = new ArrayList<>();
         this.authors = new ArrayList<>();
+        this.users = new ArrayList<>(); 
     }
 
-    // Méthode pour ajouter un livre
     public void addBook(Book book) {
         books.add(book);
-        book.getAuthor().addBook(book);
+        Author author = findAuthorByName(book.getAuthor());
+        if (author != null) {
+            author.addBook(book);
+        } else {
+            Author newAuthor = new Author(book.getAuthor());
+            newAuthor.addBook(book);
+            addAuthor(newAuthor);
+        }
     }
 
-    // Méthode pour supprimer un livre
     public void removeBook(Book book) {
         books.remove(book);
+        Author author = findAuthorByName(book.getAuthor());
+        if (author != null) {
+            author.getBooks().remove(book);
+        }
     }
 
-    // Méthode pour mettre à jour un livre
     public void updateBook(Book oldBook, Book newBook) {
         int index = books.indexOf(oldBook);
         if (index != -1) {
             books.set(index, newBook);
+            Author author = findAuthorByName(oldBook.getAuthor());
+            if (author != null) {
+                author.getBooks().remove(oldBook);
+                author.addBook(newBook);
+            }
         }
     }
 
-    // Méthode pour ajouter un auteur
     public void addAuthor(Author author) {
-        authors.add(author);
+        if (findAuthorByName(author.getName()) == null) {
+            authors.add(author);
+        } else {
+            System.out.println("L'auteur existe déjà.");
+        }
     }
 
-    // Méthode pour supprimer un auteur
     public void removeAuthor(Author author) {
         authors.remove(author);
     }
 
-    // Méthode pour mettre à jour un auteur
     public void updateAuthor(Author oldAuthor, Author newAuthor) {
         int index = authors.indexOf(oldAuthor);
         if (index != -1) {
@@ -48,58 +64,85 @@ public class Library {
         }
     }
 
-    // Méthode pour emprunter un livre par titre
-    public void borrowBook(String title) {
+    public void borrowBook(String title, User user) {
         Optional<Book> book = books.stream()
-                                   .filter(b -> b.getTitle().equalsIgnoreCase(title) && b.getStock())
+                                   .filter(b -> b.getTitle().equalsIgnoreCase(title) && b.isInStock())
                                    .findFirst();
         if (book.isPresent()) {
-            book.get().setStock(false); // Change le statut à non disponible
+            book.get().setStock(false); 
+            user.borrowBook(book.get());
             System.out.println("Le livre a été emprunté : " + book.get().getTitle());
         } else {
             System.out.println("Le livre n'est pas disponible ou est déjà emprunté.");
         }
     }
 
-    // Méthode pour retourner un livre par titre
-    public void returnBook(String title) {
-        Optional<Book> book = books.stream()
-                                   .filter(b -> b.getTitle().equalsIgnoreCase(title) && !b.getStock())
-                                   .findFirst();
+    public void returnBook(String title, User user) {
+        Optional<Book> book = user.getBorrowedBooks().stream()
+                                  .filter(b -> b.getTitle().equalsIgnoreCase(title))
+                                  .findFirst();
         if (book.isPresent()) {
-            book.get().setStock(true); // Change le statut à disponible
+            book.get().setStock(true);
+            user.returnBook(book.get());
             System.out.println("Le livre a été retourné : " + book.get().getTitle());
         } else {
-            System.out.println("Le livre n'était pas emprunté ou n'existe pas.");
+            System.out.println("Le livre n'était pas emprunté par cet utilisateur ou n'existe pas.");
         }
     }
 
-    // Méthode pour rechercher un livre par titre
     public List<Book> searchBookByTitle(String title) {
-        List<Book> result = new ArrayList<>();
-        for (Book book : books) {
-            if (book.getTitle().toLowerCase().contains(title.toLowerCase())) {
-                result.add(book);
-            }
-        }
-        return result;
+        return books.stream()
+                    .filter(b -> b.getTitle().toLowerCase().contains(title.toLowerCase()))
+                    .toList();
     }
 
-    // Méthode pour rechercher un livre par auteur
     public List<Book> searchBookByAuthor(String authorName) {
-        List<Book> result = new ArrayList<>();
-        for (Book book : books) {
-            if (book.getAuthor().toLowerCase().contains(authorName.toLowerCase())) {
-                result.add(book);
-            }
-        }
-        return result;
+        return books.stream()
+                    .filter(b -> b.getAuthor().toLowerCase().contains(authorName.toLowerCase()))
+                    .toList();
     }
 
-    // Afficher tous les livres
     public void printBooks() {
-        for (Book book : books) {
-            System.out.println(book);
+        if (books.isEmpty()) {
+            System.out.println("Aucun livre disponible dans la bibliothèque.");
+        } else {
+            System.out.println("Liste des livres dans la bibliothèque :");
+            int i = 1;
+            for (Book book : books) {
+                System.out.println(i++ + ". " + book.getTitle() + " par " + book.getAuthor());
+            }
         }
+    }
+
+    private Author findAuthorByName(String name) {
+        return authors.stream()
+                      .filter(a -> a.getName().equalsIgnoreCase(name))
+                      .findFirst()
+                      .orElse(null);
+    }
+
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    public void removeUser(User user) {
+        users.remove(user);
+    }
+
+    public void printUsers() {
+        if (users.isEmpty()) {
+            System.out.println("Aucun utilisateur enregistré");
+        } else {
+            System.out.println("Liste des utilisateurs :");
+            for (User user : users) {
+                System.out.println("- " + user.getName());
+            }
+        }
+    }
+
+    public Optional<User> findUserByName(String name) {
+        return users.stream()
+                    .filter(user -> user.getName().equalsIgnoreCase(name))
+                    .findFirst();
     }
 }

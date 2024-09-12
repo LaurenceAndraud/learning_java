@@ -1,27 +1,51 @@
-import java.utils.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Author {
-    String Name;
-    List<Book> books;
+    private String name;
+    private List<Book> books;
 
     public Author(String name) {
         this.name = name;
         this.books = new ArrayList<>();
     }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getName() {
+        return name;
+    }
 
-    public List<Book> getBooks() { return books; }
-    public void setBooks(List<Book> books) { this.books = books; }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Book> getBooks() {
+        return new ArrayList<>(books); 
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
 
     public void addBook(Book book) {
-        books.add(book);
+        boolean exists = books.stream()
+                              .anyMatch(b -> b.getTitle().equalsIgnoreCase(book.getTitle()));
+        if (!exists) {
+            books.add(book);
+        } else {
+            System.out.println("Le livre existe déjà pour cet auteur.");
+        }
+    }
+
+    public void removeBook(Book book) {
+        books.remove(book);
     }
 
     @Override
     public String toString() {
-        return "Author: " + name;
+        StringBuilder sb = new StringBuilder("Author: " + name + "\nBooks:\n");
+        for (Book book : books) {
+            sb.append("- ").append(book.getTitle()).append("\n");
+        }
+        return sb.toString();
     }
 }

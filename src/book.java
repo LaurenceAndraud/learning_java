@@ -7,7 +7,7 @@ public class Book {
     double price;
     boolean inStock;
 
-    public Book(String title, String author, String editor, int numberPages, String genre, double price, boolean inStock){
+    public Book(String title, String author, String editor, int numberPages, String genre, double price, boolean inStock) {
         this.title = title;
         this.author = author;
         this.editor = editor;
@@ -17,47 +17,64 @@ public class Book {
         this.inStock = inStock;
     }
 
+    // Getters et Setters
     public String getTitle() {
         return title; 
     }
 
-    public void setTitle(String title) { this.title = title; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) { this.author = author; }
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
     public String getEditor() {
         return editor;
     }
 
-    public void setEditor(String editor) { this.editor = editor; }
+    public void setEditor(String editor) {
+        this.editor = editor;
+    }
 
     public int getNumberPages() {
         return numberPages;
     }
 
-    public void setNumberPages(int numberPages) { this.numberPages = numberPages; }
+    public void setNumberPages(int numberPages) {
+        this.numberPages = numberPages;
+    }
 
     public String getGenre() {
         return genre;
     }
 
-    public void setGenre(String genre) { this.genre = genre; }
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
 
     public double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) { this.price = price; }
+    public void setPrice(double price) {
+        if (price >= 0) {  
+            this.price = price;
+        }
+    }
 
-    public boolean getStock() {
+    public boolean isInStock() {
         return inStock;
     }
 
-    public void setStock(boolean inStock) { this.inStock = inStock; }
+    public void setStock(boolean inStock) {
+        this.inStock = inStock;
+    }
 
     @Override
     public String toString() {
@@ -72,3 +89,4 @@ public class Book {
                '}';
     }
 }
+
